@@ -105,6 +105,12 @@ if (isDarwin) {
   const wvBundleSig = wvResources + '/Brave Framework.sig'
   const wvPlugin = buildDir + `/${appName}.app/Contents/Frameworks/Brave Framework.framework/Libraries/WidevineCdm/_platform_specific/mac_x64/widevinecdmadapter.plugin`
   // choose pkg or dmg based on channel
+
+  const torURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-mac'
+  const torPath = buildDir + `/${appName}.app/Contents/Resources/extensions/tor`
+  const torSigURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-mac.sig'
+  const torSigPath = '/tmp/tor.sig'
+
   cmds = [
     // Remove old
     'rm -f ' + outDir + `/${appName}.dmg`,
@@ -117,6 +123,11 @@ if (isDarwin) {
     'codesign --deep --force --strict --verbose --sign $IDENTIFIER "' + wvPlugin + '"',
     'python tools/signature_generator.py --input_file "' + wvBundle + '" --output_file "' + wvBundleSig + '" --flag 1',
     'python tools/signature_generator.py --input_file "' + wvPlugin + '"',
+
+    // Verify signature of the tor binary and package with installer
+    'curl -o ' + torPath + ' ' + torURL,
+    'curl -o ' + torSigPath + ' ' + torSigURL,
+    'gpg --verify ' + torSigPath + ' ' + torPath,
 
     // Sign it (requires Apple 'Developer ID Application' certificate installed in keychain)
     'cd ' + buildDir + `/${appName}.app/Contents/Frameworks`,
@@ -164,6 +175,11 @@ if (isDarwin) {
     console.log('done')
   })
 } else if (isWindows) {
+  const torURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-win.zip'
+  const torPath = buildDir + `/tor/`
+  const torSigURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-win.sig'
+  const torSigPath = '%TEMP%/tor.sig'
+
   // a cert file must be present to sign the created package
   // a password MUST be passed as the CERT_PASSWORD environment variable
   var cert = process.env.CERT || '../brave-authenticode.pfx'
@@ -186,7 +202,13 @@ if (isDarwin) {
     getSignCmd(wvExe),
     getSignCmd(wvPlugin),
     'python tools/signature_generator.py --input_file "' + wvExe + '" --flag 1',
-    'python tools/signature_generator.py --input_file "' + wvPlugin + '"'
+    'python tools/signature_generator.py --input_file "' + wvPlugin + '"',
+
+    // Verify signature of the tor binary and package with installer
+    'curl -o ' + torPath + ' ' + torURL,
+    'curl -o ' + torSigPath + ' ' + torSigURL,
+    'gpg --verify ' + torSigPath + ' ' + torPath,
+    'unzip ' + torPath + '/tor-win.zip'
   ]
   execute(cmds, {}, (err) => {
     if (err) {
@@ -220,7 +242,18 @@ if (isDarwin) {
 } else if (isLinux) {
   console.log(`Install with sudo dpkg -i dist/${appName}_` + VersionInfo.braveVersion + '_amd64.deb')
   console.log(`Or install with sudo dnf install dist/${appName}_` + VersionInfo.braveVersion + '.x86_64.rpm')
+
+  const torURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-linux'
+  const torSigURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-linux.sig'
+  const torSigPath = '/tmp/tor.sig'
+
   cmds = [
+    // Verify signature of the tor binary and package with installer
+    'mkdir -p ' + `${appName}-linux-x64/brave/resources/extensions`,
+    'curl -o ' + `${appName}-linux-x64/brave/resources/extensions/tor` + ' ' + torURL,
+    'curl -o ' + torSigPath + ' ' + torSigURL,
+    'gpg --verify ' + torSigPath + ' ' + `${appName}-linux-x64/brave/resources/extensions/tor`,
+
     // .deb file
     'electron-installer-debian' +
       ` --src ${appName}-linux-x64/` +
