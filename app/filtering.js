@@ -455,7 +455,7 @@ function registerPermissionHandler (session, partition) {
 
     let response = []
 
-    if (mainFrameOrigin == null) {
+    if (requestingUrl == null) {
       response = new Array(permissionTypes.length)
       response.fill(false, 0, permissionTypes.length)
       muonCb(response)
@@ -497,7 +497,7 @@ function registerPermissionHandler (session, partition) {
 
       // Display 'Brave Browser' if the origin is null; ex: when a mailto: link
       // is opened in a new tab via right-click
-      const message = locale.translation('permissionMessage').replace(/{{\s*host\s*}}/, requestingUrl || 'Brave Browser').replace(/{{\s*permission\s*}}/, permissions[permission].action)
+      const message = locale.translation('permissionMessage').replace(/{{\s*host\s*}}/, getOrigin(requestingUrl) || 'Brave Browser').replace(/{{\s*permission\s*}}/, permissions[permission].action)
 
       // If this is a duplicate, clear the previous callback and use the new one
       if (permissionCallbacks[message]) {
