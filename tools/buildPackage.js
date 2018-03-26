@@ -143,10 +143,27 @@ function BuildManifestFile () {
 }
 
 if (isLinux) {
+  const torURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-linux'
+  const torSigURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-linux.sig'
+
   cmds.push('ncp ./app/extensions ' + path.join(buildDir, 'resources', 'extensions'))
+  cmds.push('ncp ./app/extensions ' + path.join(buildDir, 'resources', 'extensions', 'bin'))
+
+  cmds.push('curl -o ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor') + ' ' + torURL)
+  cmds.push('curl -o ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor-sig') + ' ' + torSigURL)
+  cmds.push('gpg --verify ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor-sig') + ' ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor'))
+
 } else if (isDarwin) {
+  const torURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-mac'
+  const torSigURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-mac.sig'
+
   const macAppName = `${appName}.app`
   cmds.push('ncp ./app/extensions ' + path.join(buildDir, macAppName, 'Contents', 'Resources', 'extensions'))
+  cmds.push('ncp ./app/extensions ' + path.join(buildDir, 'resources', 'extensions', 'bin'))
+
+  cmds.push('curl -o ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor') + ' ' + torURL)
+  cmds.push('curl -o ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor-sig') + ' ' + torSigURL)
+  cmds.push('gpg --verify ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor-sig') + ' ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor'))
 } else if (isWindows) {
   const torURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-win.zip'
   const torSigURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-win.sig'
