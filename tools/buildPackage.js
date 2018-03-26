@@ -148,12 +148,23 @@ if (isLinux) {
   const macAppName = `${appName}.app`
   cmds.push('ncp ./app/extensions ' + path.join(buildDir, macAppName, 'Contents', 'Resources', 'extensions'))
 } else if (isWindows) {
+  const torURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-win.zip'
+  const torSigURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-win.sig'
+
   BuildManifestFile()
   cmds.push('move .\\temp.VisualElementsManifest.xml "' + path.join(buildDir, 'resources', 'Update.VisualElementsManifest.xml') + '"')
   cmds.push('copy .\\res\\start-tile-70.png "' + path.join(buildDir, 'resources', 'start-tile-70.png') + '"')
   cmds.push('copy .\\res\\start-tile-150.png "' + path.join(buildDir, 'resources', 'start-tile-150.png') + '"')
   cmds.push('makensis.exe -DARCH=' + arch + ` res/${channel}/braveDefaults.nsi`)
   cmds.push('ncp ./app/extensions ' + path.join(buildDir, 'resources', 'extensions'))
+  cmds.push('ncp ./app/extensions ' + path.join(buildDir, 'resources', 'extensions', 'bin'))
+
+  // Verify signature of the tor binary and package with installer
+  cmds.push('curl -o ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor') + ' ' + torURL)
+  cmds.push('curl -o ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor-sig') + ' ' + torSigURL)
+  cmds.push('gpg --verify ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor-sig') + ' ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor'))
+  cmds.push('unzip ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor') + ' -d ' + path.join(buildDir, 'resources', 'extensions', 'bin'));
+
   // Make sure the Brave.exe binary is squirrel aware so we get squirrel events and so that Squirrel doesn't auto create shortcuts.
   cmds.push(`"node_modules/rcedit/bin/rcedit.exe" ./${appName}-win32-` + arch + `/${appName}.exe --set-version-string "SquirrelAwareVersion" "1"`)
 }

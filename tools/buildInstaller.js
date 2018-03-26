@@ -175,11 +175,6 @@ if (isDarwin) {
     console.log('done')
   })
 } else if (isWindows) {
-  const torURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-win.zip'
-  const torPath = buildDir + `/tor`
-  const torSigURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-win.sig'
-  const torSigPath = '%TEMP%/tor.sig'
-
   // a cert file must be present to sign the created package
   // a password MUST be passed as the CERT_PASSWORD environment variable
   var cert = process.env.CERT || '../brave-authenticode.pfx'
@@ -203,12 +198,6 @@ if (isDarwin) {
     getSignCmd(wvPlugin),
     'python tools/signature_generator.py --input_file "' + wvExe + '" --flag 1',
     'python tools/signature_generator.py --input_file "' + wvPlugin + '"',
-
-    // Verify signature of the tor binary and package with installer
-    'curl -o ' + torPath + ' ' + torURL,
-    'curl -o ' + torSigPath + ' ' + torSigURL,
-    'gpg --verify ' + torSigPath + ' ' + torPath,
-    'unzip ' + torPath + '/tor-win.zip'
   ]
   execute(cmds, {}, (err) => {
     if (err) {
