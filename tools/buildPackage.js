@@ -163,7 +163,7 @@ if (isLinux) {
   cmds.push('curl -o ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor') + ' ' + torURL)
   cmds.push('curl -o ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor-sig') + ' ' + torSigURL)
   cmds.push('gpg --verify ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor-sig') + ' ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor'))
-  cmds.push('unzip ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor') + ' -d ' + path.join(buildDir, 'resources', 'extensions', 'bin'));
+  cmds.push('unzip ' + path.join(buildDir, 'resources', 'extensions', 'bin', 'tor') + ' -d ' + path.join(buildDir, 'resources', 'extensions', 'bin'))
 
   // Make sure the Brave.exe binary is squirrel aware so we get squirrel events and so that Squirrel doesn't auto create shortcuts.
   cmds.push(`"node_modules/rcedit/bin/rcedit.exe" ./${appName}-win32-` + arch + `/${appName}.exe --set-version-string "SquirrelAwareVersion" "1"`)

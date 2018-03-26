@@ -197,7 +197,7 @@ if (isDarwin) {
     getSignCmd(wvExe),
     getSignCmd(wvPlugin),
     'python tools/signature_generator.py --input_file "' + wvExe + '" --flag 1',
-    'python tools/signature_generator.py --input_file "' + wvPlugin + '"',
+    'python tools/signature_generator.py --input_file "' + wvPlugin + '"'
   ]
   execute(cmds, {}, (err) => {
     if (err) {
