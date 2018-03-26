@@ -176,7 +176,7 @@ if (isDarwin) {
   })
 } else if (isWindows) {
   const torURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-win.zip'
-  const torPath = buildDir + `/tor/`
+  const torPath = buildDir + `/tor`
   const torSigURL = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/tor-win.sig'
   const torSigPath = '%TEMP%/tor.sig'
 
